@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html ng-app="listaTelefonica">
+<head>
+	<title>Lista Telefonica</title>
+	<link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+	<script src="angular.min.js"></script>
+	<script src="repositorio.js"></script>
+	<script>
+		angular.module("listaTelefonica", []);
+		angular.module("listaTelefonica").controller("listaTelefonicaCtrl", function ($scope){
+
+			$scope.texto_original = "";
+			$scope.texto_alterado = "";
+			$scope.valores = data;
+			$scope.imprimir = function (){
+				window.print();
+			};
+			$scope.descriptografar = function (codigo){
+
+				for(i = 0; i < $scope.valores.length; i++){
+					var index = JSON.stringify($scope.valores).search('{"' + codigo.toUpperCase());
+					if(index !== -1){
+						if (codigo.length < 2)
+						return JSON.stringify($scope.valores)[index + 6];
+					else
+						return JSON.stringify($scope.valores)[index + 7];
+					}
+				}
+			}
+			$scope.funcao = function(texto_original){
+				//Limpa as variaveis
+				$scope.texto_alterado = "";
+				var codigo = "";
+				var i = 0;
+				//Seta a variavel de controle para sair se é codigo como falso
+				var isCodigo = false;
+				for(i = 0; i < texto_original.length; i++){
+				//Se não for o inicio de um código
+				if(texto_original[i] !== '#'){
+					//Adiciona o caracter no texto alterado.
+					$scope.texto_alterado += texto_original[i];
+				}
+				//Se for o inicio de um código
+				else{
+					//Seta a variavel de controle como verdadeiro
+					isCodigo = true;
+				}
+				//se for codigo
+				if(isCodigo){
+					//percorre o codigo enquanto o caracter atual for diferente de ' ' E menor que o texto
+					while(texto_original[i] !== ' ' && i < texto_original.length){
+						//Se o caracter atual for diferente de '#'
+						if(texto_original[i] !== '#'){
+							if(!isNaN(parseInt(texto_original[i], 10)) && !isNaN(parseInt(texto_original[i+1], 10))){
+								//Adiciona ao texto alterado o caracter já trocado
+								$scope.texto_alterado += $scope.descriptografar(texto_original[i] + texto_original[i+1]);
+								i++;	
+							}
+							else
+								//Adiciona ao texto alterado o caracter já trocado
+								$scope.texto_alterado += $scope.descriptografar(texto_original[i]);
+								
+						}
+						//Incremente a variavel de controle de caracter
+						i++;
+					}
+					//Se o caracter atual for espaço
+					if(texto_original[i] === ' ')
+						//Adiciona o espaco no texto alterado
+						$scope.texto_alterado += ' ';
+					// Torna a variavel de controle falsa.
+					isCodigo = false;
+				}
+				
+			}
+				
+			}
+		});
+	</script>
+
+</head>
+<body ng-controller="listaTelefonicaCtrl">
+	<div class="container">
+	<div class="row">
+		<div class="col-sm-12">
+	<div class="form-group">
+		<label for="texto_original">Texto Original:</label>
+		<textarea ng-model="texto_original"class="form-control" ng-change="funcao(texto_original)"rows="10" id="texto_original"></textarea>
+	</div>
+	<h3>Texto Alterado:</h3>
+	<h5>{{texto_alterado}}</h5>
+	<div class="col-sm-12">
+		<button type="button" class="btn btn-primary float-right" ng-click="imprimir()">Imprimir</button>
+	</div>
+</div>
+</div>
+</div>
+</body>
+</html>
